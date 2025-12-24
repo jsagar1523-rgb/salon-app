@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Salon Chair System</title>
 
+  <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="icon-512.png">
   <meta name="theme-color" content="#2563eb">
@@ -16,41 +16,43 @@
       background: #f2f4f8;
       padding: 12px;
     }
-    ...
+    h2 { text-align: center; }
+
+    .card {
+      background: #fff;
+      padding: 14px;
+      border-radius: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,.08);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin: 6px 0;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .row { display: flex; gap: 8px; }
+    .row button { flex: 1; }
+
+    .chair { background: #2563eb; color: #fff; }
+    .service { background: #e5e7eb; }
+    .save { background: #16a34a; color: #fff; }
+    .reset { background: #dc2626; color: #fff; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { border-bottom: 1px solid #ddd; padding: 6px; text-align: left; }
+
+    .total {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+    }
   </style>
-</head>
-
-.card{
-  background:#fff;
-  padding:14px;
-  border-radius:14px;
-  margin-bottom:14px;
-  box-shadow:0 4px 12px rgba(0,0,0,.08);
-}
-
-.row{display:flex;gap:8px;flex-wrap:wrap}
-
-button{
-  flex:1;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  font-size:15px;
-  cursor:pointer;
-}
-
-.chair{background:#2563eb;color:#fff}
-.service{background:#e5e7eb}
-.save{background:#16a34a;color:#fff;width:100%}
-.reset{background:#dc2626;color:#fff;width:100%}
-
-.active{outline:3px solid #16a34a}
-
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{padding:6px;border-bottom:1px solid #ddd;text-align:left}
-
-.total{text-align:center;font-size:20px;font-weight:bold}
-</style>
 </head>
 
 <body>
@@ -58,170 +60,127 @@ th,td{padding:6px;border-bottom:1px solid #ddd;text-align:left}
 <h2>Salon Chair System</h2>
 
 <div class="card">
-<b>Select Chair</b>
-<div class="row">
-<button class="chair" onclick="selectChair(1)">Chair 1</button>
-<button class="chair" onclick="selectChair(2)">Chair 2</button>
-<button class="chair" onclick="selectChair(3)">Chair 3</button>
-<button class="chair" onclick="selectChair(4)">Chair 4</button>
-<button class="chair" onclick="selectChair(5)">Chair 5</button>
-</div>
-</div>
-
-<div class="card">
-<b>Select Services</b>
-<div class="row">
-<button class="service" onclick="addService('Haircut',150)">Haircut ₹150</button>
-<button class="service" onclick="addService('Beard',80)">Beard ₹80</button>
-<button class="service" onclick="addService('Facial',300)">Facial ₹300</button>
-<button class="service" onclick="addService('Hair Color',100)">Hair Color ₹100</button>
-</div>
-</div>
-
-<div class="card">
-<b>Current Bill</b>
-<div id="bill"></div>
-<p><b>Total:</b> ₹ <span id="billTotal">0</span></p>
-<button class="save" onclick="saveEntry()">Save Entry</button>
-</div>
-
-<div class="card">
-<div class="total">Today Total: ₹ <span id="todayTotal">0</span></div>
-</div>
-
-<div class="card">
-<b>Entries</b>
-<table>
-<thead>
-<tr><th>Chair</th><th>Services</th><th>Amount</th></tr>
-</thead>
-<tbody id="records"></tbody>
-</table>
-</div>
-
-<div class="card">
-<button class="save" onclick="downloadReport()">Download Report</button>
-</div>
-
-<div class="card">
-<button class="reset" onclick="openConfirm()">Close Day</button>
-</div>
-
-<!-- CUSTOM CONFIRM POPUP -->
-<div id="confirmBox" style="
-display:none;
-position:fixed;
-top:0;left:0;
-width:100%;height:100%;
-background:rgba(0,0,0,.5);
-align-items:center;
-justify-content:center;
-z-index:9999;">
-  <div style="
-  background:#fff;
-  padding:20px;
-  border-radius:14px;
-  width:90%;
-  max-width:300px;
-  text-align:center;">
-    <h3>Salon Chair System</h3>
-    <p>Close today?<br>All data will reset</p>
-    <button class="save" onclick="confirmClose()">OK</button>
-    <br><br>
-    <button class="reset" onclick="closeConfirm()">Cancel</button>
+  <b>Select Chair</b>
+  <div class="row">
+    <button class="chair" onclick="selectChair(1)">Chair 1</button>
+    <button class="chair" onclick="selectChair(2)">Chair 2</button>
+    <button class="chair" onclick="selectChair(3)">Chair 3</button>
+  </div>
+  <div class="row">
+    <button class="chair" onclick="selectChair(4)">Chair 4</button>
+    <button class="chair" onclick="selectChair(5)">Chair 5</button>
   </div>
 </div>
 
+<div class="card">
+  <b>Select Services</b>
+  <button class="service" onclick="addService('Haircut',150)">Haircut ₹150</button>
+  <button class="service" onclick="addService('Beard',80)">Beard ₹80</button>
+  <button class="service" onclick="addService('Facial',300)">Facial ₹300</button>
+  <button class="service" onclick="addService('Hair Color',100)">Hair Color ₹100</button>
+</div>
+
+<div class="card">
+  <b>Current Bill</b>
+  <div id="bill"></div>
+  <p><b>Total:</b> ₹ <span id="billTotal">0</span></p>
+  <button class="save" onclick="saveEntry()">Save Entry</button>
+</div>
+
+<div class="card">
+  <div class="total">Today Total: ₹ <span id="todayTotal">0</span></div>
+</div>
+
+<div class="card">
+  <b>Entries</b>
+  <table>
+    <thead>
+      <tr><th>Chair</th><th>Services</th><th>Amount</th></tr>
+    </thead>
+    <tbody id="records"></tbody>
+  </table>
+</div>
+
+<div class="card">
+  <button class="save" onclick="downloadReport()">Download Report</button>
+</div>
+
+<div class="card">
+  <button class="reset" onclick="closeDay()">Close Day</button>
+</div>
+
 <script>
-let selectedChair=null;
-let currentServices=[];
-let currentTotal=0;
-let data=JSON.parse(localStorage.getItem("salonData"))||[];
+let data = JSON.parse(localStorage.getItem("salonData")) || [];
+let selectedChair = null;
+let services = [];
+let total = 0;
 
-function selectChair(ch){
-  selectedChair=ch;
-  document.querySelectorAll(".chair").forEach(b=>b.classList.remove("active"));
-  event.target.classList.add("active");
+function selectChair(c) {
+  selectedChair = c;
+  alert("Chair " + c + " selected");
 }
 
-function addService(name,price){
-  if(!selectedChair){alert("Select chair first");return;}
-  currentServices.push(name);
-  currentTotal+=price;
-  renderBill();
+function addService(name, price) {
+  if (!selectedChair) {
+    alert("Select chair first");
+    return;
+  }
+  services.push(name);
+  total += price;
+  document.getElementById("bill").innerText = services.join(" + ");
+  document.getElementById("billTotal").innerText = total;
 }
 
-function renderBill(){
-  document.getElementById("bill").innerText=currentServices.join(", ");
-  document.getElementById("billTotal").innerText=currentTotal;
-}
-
-function saveEntry(){
-  if(!selectedChair || currentServices.length==0){
+function saveEntry() {
+  if (!selectedChair || services.length === 0) {
     alert("Select chair & service");
     return;
   }
-  data.push({
-    chair:selectedChair,
-    services:[...currentServices],
-    amount:currentTotal
-  });
-  localStorage.setItem("salonData",JSON.stringify(data));
-  currentServices=[];
-  currentTotal=0;
-  renderBill();
+  data.push({ chair: selectedChair, services, amount: total });
+  localStorage.setItem("salonData", JSON.stringify(data));
+  services = [];
+  total = 0;
+  document.getElementById("bill").innerText = "";
+  document.getElementById("billTotal").innerText = 0;
   render();
 }
 
-function render(){
-  let tbody=document.getElementById("records");
-  tbody.innerHTML="";
-  let total=0;
-  data.forEach(r=>{
-    tbody.innerHTML+=`
-      <tr>
-        <td>${r.chair}</td>
-        <td>${r.services.join("+")}</td>
-        <td>₹${r.amount}</td>
-      </tr>`;
-    total+=r.amount;
+function render() {
+  let rows = "";
+  let sum = 0;
+  data.forEach(r => {
+    rows += `<tr><td>${r.chair}</td><td>${r.services.join("+")}</td><td>₹${r.amount}</td></tr>`;
+    sum += r.amount;
   });
-  document.getElementById("todayTotal").innerText=total;
+  document.getElementById("records").innerHTML = rows;
+  document.getElementById("todayTotal").innerText = sum;
+}
+render();
+
+function closeDay() {
+  if (confirm("Close today? Data will reset")) {
+    localStorage.removeItem("salonData");
+    data = [];
+    render();
+  }
 }
 
-function downloadReport(){
-  if(data.length==0){alert("No data to download");return;}
-  let csv="Chair,Services,Amount\n";
-  let total=0;
-  data.forEach(r=>{
-    csv+=`${r.chair},"${r.services.join("+")}",${r.amount}\n`;
-    total+=r.amount;
+function downloadReport() {
+  if (data.length === 0) {
+    alert("No data to download");
+    return;
+  }
+  let csv = "Chair,Services,Amount\n";
+  data.forEach(r => {
+    csv += `${r.chair},"${r.services.join("+")}",${r.amount}\n`;
   });
-  csv+=`,Total,${total}`;
-  let blob=new Blob([csv],{type:"text/csv"});
-  let a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="salon-report.csv";
+  let blob = new Blob([csv], { type: "text/csv" });
+  let a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "salon-report.csv";
   a.click();
 }
-
-function openConfirm(){
-  document.getElementById("confirmBox").style.display="flex";
-}
-function closeConfirm(){
-  document.getElementById("confirmBox").style.display="none";
-}
-function confirmClose(){
-  localStorage.removeItem("salonData");
-  data=[];
-  render();
-  closeConfirm();
-}
-
-render();
 </script>
 
 </body>
 </html>
-
-
