@@ -115,6 +115,15 @@ td,th{border-bottom:1px solid #ddd;padding:6px;text-align:left}
 </div>
 
 <script>
+ function showPopup(msg){
+  document.getElementById("popupText").innerText = msg;
+  document.getElementById("popup").style.display = "block";
+}
+
+function closePopup(){
+  document.getElementById("popup").style.display = "none";
+}
+
 /* ================= PAYMENT CONTROL ================= */
 /* फक्त ही तारीख बदलायची */
 const PAID_TILL = "2026-01-31"; // yyyy-mm-dd
@@ -146,12 +155,14 @@ let currentTotal = 0;
 
 function selectChair(ch){
   selectedChair = ch;
-  alert("Chair " + ch + " selected");
+  showPopup("Chair " + ch + " selected");
+
 }
 
 function addService(name, price){
   if(!selectedChair){
-    alert("Select chair first");
+   showPopup("Select chair first");
+
     return;
   }
   currentServices.push(name);
@@ -166,7 +177,8 @@ function renderBill(){
 
 function saveEntry(){
   if(!selectedChair || currentServices.length===0){
-    alert("Select chair & service");
+    showPopup("Select chair & service");
+
     return;
   }
   data.push({
@@ -199,10 +211,11 @@ function render(){
 }
 
 function closeDay(){
-  if(confirm("Close today? Data will reset")){
-    localStorage.removeItem("salonData");
-    data=[];
-    render();
+showPopup("Day closed & data reset");
+localStorage.removeItem("salonData");
+data = [];
+render();
+  
   }
 }
 
@@ -211,7 +224,8 @@ function downloadSalonReport() {
   let data = JSON.parse(localStorage.getItem("salonData")) || [];
 
   if (data.length === 0) {
-    alert("No data to download");
+   showPopup("No data to download");
+
     return;
   }
 
@@ -242,7 +256,28 @@ function downloadSalonReport() {
 
 
 </script>
+<div id="popup" style="
+display:none;
+position:fixed;
+top:0; left:0;
+width:100%; height:100%;
+background:rgba(0,0,0,0.5);
+z-index:9999;
+">
+  <div style="
+    background:#fff;
+    margin:40% auto;
+    padding:15px;
+    width:80%;
+    border-radius:10px;
+    text-align:center;
+  ">
+    <p id="popupText"></p>
+    <button onclick="closePopup()">OK</button>
+  </div>
+</div>
 
 </body>
 </html>
+
 
