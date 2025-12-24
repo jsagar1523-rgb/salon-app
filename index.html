@@ -1,100 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Salon Chair System</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Salon Chair System</title>
 
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" href="icon-512.png">
-  <meta name="theme-color" content="#2563eb">
-
-  <style>
-    body {
-      font-family: system-ui, Segoe UI, Roboto;
-      background: #f2f4f8;
-      padding: 12px;
-    }
-    h2 { text-align: center; }
-
-    .card {
-      background: #fff;
-      padding: 14px;
-      border-radius: 14px;
-      margin-bottom: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,.08);
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      margin: 6px 0;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    .row { display: flex; gap: 8px; }
-    .row button { flex: 1; }
-
-    .chair { background: #2563eb; color: #fff; }
-    .chair.active {
-  background: #1e40af;
-  outline: 3px solid #93c5fd;
-  color: #fff;
+<style>
+body{
+  font-family: system-ui, Arial;
+  background:#f2f4f8;
+  padding:12px;
 }
 
-    .service { background: #e5e7eb; }
-    .save { background: #16a34a; color: #fff; }
-    .reset { background: #dc2626; color: #fff; }
+h2{text-align:center}
 
-    table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    th, td { border-bottom: 1px solid #ddd; padding: 6px; text-align: left; }
+.card{
+  background:#fff;
+  padding:14px;
+  border-radius:14px;
+  margin-bottom:14px;
+  box-shadow:0 4px 10px rgba(0,0,0,.05);
+}
 
-    .total {
-      font-size: 20px;
-      font-weight: bold;
-      text-align: center;
-    }
-  </style>
+.btn{
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  font-size:16px;
+  margin:6px 0;
+  width:100%;
+}
+
+.chairs button{
+  background:#2563eb;
+  color:#fff;
+  margin:4px;
+}
+
+.chairs button.active{
+  background:#16a34a;
+}
+
+.services button{
+  background:#e5e7eb;
+}
+
+.services button.active{
+  background:#22c55e;
+  color:#fff;
+}
+
+.save{background:#16a34a;color:#fff}
+.reset{background:#b91c1c;color:#fff}
+.download{background:#15803d;color:#fff}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th,td{
+  border-bottom:1px solid #ddd;
+  padding:6px;
+  text-align:center;
+}
+
+#msg{
+  display:none;
+  background:#111827;
+  color:#fff;
+  padding:10px;
+  border-radius:10px;
+  text-align:center;
+  margin-bottom:10px;
+}
+</style>
 </head>
 
 <body>
 
 <h2>Salon Chair System</h2>
 
-<div class="card">
-  <b>Select Chair</b>
-  <div class="row">
-    <button class="chair" onclick="selectChair(1)">Chair 1</button>
-    <button class="chair" onclick="selectChair(2)">Chair 2</button>
-    <button class="chair" onclick="selectChair(3)">Chair 3</button>
-  </div>
-  <div class="row">
-    <button class="chair" onclick="selectChair(4)">Chair 4</button>
-    <button class="chair" onclick="selectChair(5)">Chair 5</button>
-  </div>
+<div id="msg"></div>
+
+<div class="card chairs">
+  <b>Select Chair</b><br>
+  <button onclick="selectChair(1)">Chair 1</button>
+  <button onclick="selectChair(2)">Chair 2</button>
+  <button onclick="selectChair(3)">Chair 3</button>
+  <button onclick="selectChair(4)">Chair 4</button>
+  <button onclick="selectChair(5)">Chair 5</button>
 </div>
 
-<div class="card">
+<div class="card services">
   <b>Select Services</b>
-  <button class="service" onclick="addService('Haircut',150)">Haircut ₹150</button>
-  <button class="service" onclick="addService('Beard',80)">Beard ₹80</button>
-  <button class="service" onclick="addService('Facial',300)">Facial ₹300</button>
-  <button class="service" onclick="addService('Hair Color',100)">Hair Color ₹100</button>
+  <button onclick="toggleService('Haircut',150)">Haircut ₹150</button>
+  <button onclick="toggleService('Beard',80)">Beard ₹80</button>
+  <button onclick="toggleService('Facial',300)">Facial ₹300</button>
+  <button onclick="toggleService('Hair Color',100)">Hair Color ₹100</button>
 </div>
 
 <div class="card">
-  <b>Current Bill</b>
-  <div id="bill"></div>
-  <p><b>Total:</b> ₹ <span id="billTotal">0</span></p>
-  <button class="save" onclick="saveEntry()">Save Entry</button>
+  <b>Current Bill</b><br><br>
+  Total: ₹ <span id="billTotal">0</span>
+  <button class="btn save" onclick="saveEntry()">Save Entry</button>
 </div>
 
 <div class="card">
-  <div class="total">Today Total: ₹ <span id="todayTotal">0</span></div>
+  <b>Today Total: ₹ <span id="todayTotal">0</span></b>
 </div>
 
 <div class="card">
@@ -107,88 +119,101 @@
   </table>
 </div>
 
-<div class="card">
-  <button class="save" onclick="downloadReport()">Download Report</button>
-</div>
-
-<div class="card">
-  <button class="reset" onclick="closeDay()">Close Day</button>
-</div>
+<button class="btn download" onclick="downloadReport()">Download Report</button>
+<button class="btn reset" onclick="closeDay()">Close Day</button>
 
 <script>
-let data = JSON.parse(localStorage.getItem("salonData")) || [];
 let selectedChair = null;
 let services = [];
 let total = 0;
+let data = JSON.parse(localStorage.getItem("salonData")) || [];
 
-function selectChair(c) {
-  selectedChair = c;
-  showPopup("Chair " + c + " selected");
+function showMsg(t){
+  const m=document.getElementById("msg");
+  m.innerText=t;
+  m.style.display="block";
+  setTimeout(()=>m.style.display="none",2000);
 }
 
-function addService(name, price) {
-  if (!selectedChair) {
-    showPopup("Select chair first");
-    return;
-  }
-  services.push(name);
-  total += price;
-  document.getElementById("bill").innerText = services.join(" + ");
-  document.getElementById("billTotal").innerText = total;
+function selectChair(c){
+  selectedChair=c;
+  document.querySelectorAll(".chairs button").forEach(b=>b.classList.remove("active"));
+  event.target.classList.add("active");
+  showMsg("Chair "+c+" selected");
 }
 
-function saveEntry() {
-  if (!selectedChair || services.length === 0) {
-    alert("Select chair & service");
+function toggleService(name,price){
+  const idx=services.findIndex(s=>s.name===name);
+  if(idx>-1){
+    total-=services[idx].price;
+    services.splice(idx,1);
+    event.target.classList.remove("active");
+  }else{
+    services.push({name,price});
+    total+=price;
+    event.target.classList.add("active");
+  }
+  document.getElementById("billTotal").innerText=total;
+}
+
+function saveEntry(){
+  if(!selectedChair || services.length==0){
+    showMsg("Select chair and service");
     return;
   }
-  data.push({ chair: selectedChair, services, amount: total });
-  localStorage.setItem("salonData", JSON.stringify(data));
-  services = [];
-  total = 0;
-  document.getElementById("bill").innerText = "";
-  document.getElementById("billTotal").innerText = 0;
+  const entry={
+    chair:selectedChair,
+    services:services.map(s=>s.name).join("+"),
+    amount:total
+  };
+  data.push(entry);
+  localStorage.setItem("salonData",JSON.stringify(data));
+  resetBill();
   render();
+  showMsg("Entry saved");
 }
 
-function render() {
-  let rows = "";
-  let sum = 0;
-  data.forEach(r => {
-    rows += `<tr><td>${r.chair}</td><td>${r.services.join("+")}</td><td>₹${r.amount}</td></tr>`;
-    sum += r.amount;
+function resetBill(){
+  services=[];
+  total=0;
+  selectedChair=null;
+  document.getElementById("billTotal").innerText=0;
+  document.querySelectorAll("button").forEach(b=>b.classList.remove("active"));
+}
+
+function render(){
+  const tb=document.getElementById("records");
+  tb.innerHTML="";
+  let sum=0;
+  data.forEach(d=>{
+    sum+=d.amount;
+    tb.innerHTML+=`<tr><td>${d.chair}</td><td>${d.services}</td><td>₹${d.amount}</td></tr>`;
   });
-  document.getElementById("records").innerHTML = rows;
-  document.getElementById("todayTotal").innerText = sum;
-}
-render();
-
-function closeDay() {
-  if (confirm("Close today? Data will reset")) {
-    localStorage.removeItem("salonData");
-    data = [];
-    render();
-  }
+  document.getElementById("todayTotal").innerText=sum;
 }
 
-function downloadReport() {
-  if (data.length === 0) {
-    showPopup("No data to download");
+function downloadReport(){
+  if(data.length==0){
+    showMsg("No data to download");
     return;
   }
-  let csv = "Chair,Services,Amount\n";
-  data.forEach(r => {
-    csv += `${r.chair},"${r.services.join("+")}",${r.amount}\n`;
-  });
-  let blob = new Blob([csv], { type: "text/csv" });
-  let a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "salon-report.csv";
+  let csv="Chair,Services,Amount\n";
+  data.forEach(d=>csv+=`${d.chair},${d.services},${d.amount}\n`);
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+  a.download="salon-report.csv";
   a.click();
 }
+
+function closeDay(){
+  data=[];
+  localStorage.removeItem("salonData");
+  render();
+  showMsg("Day closed & data reset");
+}
+
+render();
 </script>
 
 </body>
 </html>
-
-
