@@ -7,7 +7,7 @@
 
 <style>
 body{
-  font-family: system-ui, Arial;
+  font-family:system-ui,Segoe UI,Roboto;
   background:#f2f4f8;
   padding:12px;
 }
@@ -15,43 +15,34 @@ h2{text-align:center}
 
 .card{
   background:#fff;
-  padding:12px;
-  border-radius:12px;
-  margin-bottom:12px;
-  box-shadow:0 4px 10px rgba(0,0,0,.08);
+  padding:14px;
+  border-radius:14px;
+  margin-bottom:14px;
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
 }
-.row{display:flex; gap:8px; margin-bottom:8px}
-.row button{flex:1}
+
+.row{display:flex;gap:8px;flex-wrap:wrap}
 
 button{
-  padding:10px;
+  flex:1;
+  padding:12px;
   border:none;
-  border-radius:8px;
+  border-radius:10px;
   font-size:15px;
   cursor:pointer;
 }
+
 .chair{background:#2563eb;color:#fff}
 .service{background:#e5e7eb}
-.save{background:#16a34a;color:#fff}
-.reset{background:#dc2626;color:#fff}
+.save{background:#16a34a;color:#fff;width:100%}
+.reset{background:#dc2626;color:#fff;width:100%}
 
 .active{outline:3px solid #16a34a}
 
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:14px;
-}
-th,td{
-  border-bottom:1px solid #ddd;
-  padding:6px;
-  text-align:left;
-}
-.total{
-  text-align:center;
-  font-size:20px;
-  font-weight:bold;
-}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:6px;border-bottom:1px solid #ddd;text-align:left}
+
+.total{text-align:center;font-size:20px;font-weight:bold}
 </style>
 </head>
 
@@ -62,22 +53,22 @@ th,td{
 <div class="card">
 <b>Select Chair</b>
 <div class="row">
-  <button class="chair" onclick="selectChair(1)">Chair 1</button>
-  <button class="chair" onclick="selectChair(2)">Chair 2</button>
-  <button class="chair" onclick="selectChair(3)">Chair 3</button>
-</div>
-<div class="row">
-  <button class="chair" onclick="selectChair(4)">Chair 4</button>
-  <button class="chair" onclick="selectChair(5)">Chair 5</button>
+<button class="chair" onclick="selectChair(1)">Chair 1</button>
+<button class="chair" onclick="selectChair(2)">Chair 2</button>
+<button class="chair" onclick="selectChair(3)">Chair 3</button>
+<button class="chair" onclick="selectChair(4)">Chair 4</button>
+<button class="chair" onclick="selectChair(5)">Chair 5</button>
 </div>
 </div>
 
 <div class="card">
 <b>Select Services</b>
+<div class="row">
 <button class="service" onclick="addService('Haircut',150)">Haircut ₹150</button>
 <button class="service" onclick="addService('Beard',80)">Beard ₹80</button>
 <button class="service" onclick="addService('Facial',300)">Facial ₹300</button>
 <button class="service" onclick="addService('Hair Color',100)">Hair Color ₹100</button>
+</div>
 </div>
 
 <div class="card">
@@ -87,8 +78,8 @@ th,td{
 <button class="save" onclick="saveEntry()">Save Entry</button>
 </div>
 
-<div class="card total">
-Today Total: ₹ <span id="todayTotal">0</span>
+<div class="card">
+<div class="total">Today Total: ₹ <span id="todayTotal">0</span></div>
 </div>
 
 <div class="card">
@@ -106,43 +97,64 @@ Today Total: ₹ <span id="todayTotal">0</span>
 </div>
 
 <div class="card">
-<button class="reset" onclick="closeDay()">Close Day</button>
+<button class="reset" onclick="openConfirm()">Close Day</button>
+</div>
+
+<!-- CUSTOM CONFIRM POPUP -->
+<div id="confirmBox" style="
+display:none;
+position:fixed;
+top:0;left:0;
+width:100%;height:100%;
+background:rgba(0,0,0,.5);
+align-items:center;
+justify-content:center;
+z-index:9999;">
+  <div style="
+  background:#fff;
+  padding:20px;
+  border-radius:14px;
+  width:90%;
+  max-width:300px;
+  text-align:center;">
+    <h3>Salon Chair System</h3>
+    <p>Close today?<br>All data will reset</p>
+    <button class="save" onclick="confirmClose()">OK</button>
+    <br><br>
+    <button class="reset" onclick="closeConfirm()">Cancel</button>
+  </div>
 </div>
 
 <script>
-let data = JSON.parse(localStorage.getItem("salonData")) || [];
-let selectedChair = null;
-let currentServices = [];
-let currentTotal = 0;
+let selectedChair=null;
+let currentServices=[];
+let currentTotal=0;
+let data=JSON.parse(localStorage.getItem("salonData"))||[];
 
 function selectChair(ch){
-  selectedChair = ch;
+  selectedChair=ch;
   document.querySelectorAll(".chair").forEach(b=>b.classList.remove("active"));
   event.target.classList.add("active");
 }
 
 function addService(name,price){
-  if(!selectedChair){
-    alert("Select chair first");
-    return;
-  }
+  if(!selectedChair){alert("Select chair first");return;}
   currentServices.push(name);
-  currentTotal += price;
+  currentTotal+=price;
   renderBill();
 }
 
 function renderBill(){
-  bill.innerHTML = currentServices.join(" + ");
-  billTotal.innerText = currentTotal;
+  document.getElementById("bill").innerText=currentServices.join(", ");
+  document.getElementById("billTotal").innerText=currentTotal;
 }
 
 function saveEntry(){
-  if(!selectedChair || currentServices.length===0){
+  if(!selectedChair || currentServices.length==0){
     alert("Select chair & service");
     return;
   }
   data.push({
-    date:new Date().toLocaleDateString(),
     chair:selectedChair,
     services:[...currentServices],
     amount:currentTotal
@@ -150,52 +162,53 @@ function saveEntry(){
   localStorage.setItem("salonData",JSON.stringify(data));
   currentServices=[];
   currentTotal=0;
-  bill.innerHTML="";
-  billTotal.innerText=0;
+  renderBill();
   render();
 }
 
 function render(){
-  records.innerHTML="";
+  let tbody=document.getElementById("records");
+  tbody.innerHTML="";
   let total=0;
   data.forEach(r=>{
-    records.innerHTML+=`
+    tbody.innerHTML+=`
       <tr>
         <td>${r.chair}</td>
-        <td>${r.services.join(" + ")}</td>
+        <td>${r.services.join("+")}</td>
         <td>₹${r.amount}</td>
       </tr>`;
     total+=r.amount;
   });
-  todayTotal.innerText=total;
-}
-
-function closeDay(){
-  if(confirm("Close today? Data will reset")){
-    localStorage.removeItem("salonData");
-    data=[];
-    render();
-  }
+  document.getElementById("todayTotal").innerText=total;
 }
 
 function downloadReport(){
-  if(data.length===0){
-    alert("No data to download");
-    return;
-  }
-  let csv="Date,Chair,Services,Amount\n";
+  if(data.length==0){alert("No data to download");return;}
+  let csv="Chair,Services,Amount\n";
   let total=0;
   data.forEach(r=>{
-    csv+=`${r.date},${r.chair},"${r.services.join("+")}",${r.amount}\n`;
+    csv+=`${r.chair},"${r.services.join("+")}",${r.amount}\n`;
     total+=r.amount;
   });
-  csv+=`,,,Total ${total}\n`;
-
-  const blob=new Blob([csv],{type:"text/csv"});
-  const a=document.createElement("a");
+  csv+=`,Total,${total}`;
+  let blob=new Blob([csv],{type:"text/csv"});
+  let a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
   a.download="salon-report.csv";
   a.click();
+}
+
+function openConfirm(){
+  document.getElementById("confirmBox").style.display="flex";
+}
+function closeConfirm(){
+  document.getElementById("confirmBox").style.display="none";
+}
+function confirmClose(){
+  localStorage.removeItem("salonData");
+  data=[];
+  render();
+  closeConfirm();
 }
 
 render();
