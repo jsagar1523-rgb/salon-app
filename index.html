@@ -123,12 +123,12 @@ let total = 0;
 
 function selectChair(c) {
   selectedChair = c;
-  alert("Chair " + c + " selected");
+  showPopup("Chair " + c + " selected");
 }
 
 function addService(name, price) {
   if (!selectedChair) {
-    alert("Select chair first");
+    showPopup("Select chair first");
     return;
   }
   services.push(name);
@@ -173,7 +173,7 @@ function closeDay() {
 
 function downloadReport() {
   if (data.length === 0) {
-    alert("No data to download");
+    showPopup("No data to download");
     return;
   }
   let csv = "Chair,Services,Amount\n";
@@ -190,4 +190,5 @@ function downloadReport() {
 
 </body>
 </html>
+
 
