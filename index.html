@@ -8,8 +8,7 @@
 <style>
 body{
   font-family: system-ui, Arial;
-  background:#f4f6fb;
-  margin:0;
+  background:#f2f4f8;
   padding:12px;
 }
 h2{text-align:center}
@@ -21,12 +20,12 @@ h2{text-align:center}
   margin-bottom:12px;
   box-shadow:0 4px 10px rgba(0,0,0,.08);
 }
-.row{display:flex;gap:8px;margin-bottom:8px}
+.row{display:flex; gap:8px; margin-bottom:8px}
 .row button{flex:1}
 
 button{
+  padding:10px;
   border:none;
-  padding:12px;
   border-radius:8px;
   font-size:15px;
   cursor:pointer;
@@ -36,39 +35,22 @@ button{
 .save{background:#16a34a;color:#fff}
 .reset{background:#dc2626;color:#fff}
 
+.active{outline:3px solid #16a34a}
+
 table{
   width:100%;
   border-collapse:collapse;
   font-size:14px;
 }
 th,td{
-  padding:6px;
   border-bottom:1px solid #ddd;
+  padding:6px;
   text-align:left;
 }
-
 .total{
+  text-align:center;
   font-size:20px;
   font-weight:bold;
-  text-align:center;
-}
-
-/* popup */
-#popup{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.5);
-  z-index:999;
-}
-#popupBox{
-  background:#fff;
-  width:80%;
-  max-width:320px;
-  margin:40% auto;
-  padding:15px;
-  border-radius:10px;
-  text-align:center;
 }
 </style>
 </head>
@@ -105,8 +87,8 @@ th,td{
 <button class="save" onclick="saveEntry()">Save Entry</button>
 </div>
 
-<div class="card">
-<div class="total">Today Total: ₹ <span id="todayTotal">0</span></div>
+<div class="card total">
+Today Total: ₹ <span id="todayTotal">0</span>
 </div>
 
 <div class="card">
@@ -127,36 +109,21 @@ th,td{
 <button class="reset" onclick="closeDay()">Close Day</button>
 </div>
 
-<!-- Popup -->
-<div id="popup">
-  <div id="popupBox">
-    <p id="popupText"></p>
-    <button onclick="closePopup()">OK</button>
-  </div>
-</div>
-
 <script>
 let data = JSON.parse(localStorage.getItem("salonData")) || [];
 let selectedChair = null;
 let currentServices = [];
 let currentTotal = 0;
 
-function showPopup(msg){
-  document.getElementById("popupText").innerText = msg;
-  document.getElementById("popup").style.display="block";
-}
-function closePopup(){
-  document.getElementById("popup").style.display="none";
-}
-
 function selectChair(ch){
   selectedChair = ch;
-  showPopup("Chair " + ch + " selected");
+  document.querySelectorAll(".chair").forEach(b=>b.classList.remove("active"));
+  event.target.classList.add("active");
 }
 
 function addService(name,price){
   if(!selectedChair){
-    showPopup("Please select chair first");
+    alert("Select chair first");
     return;
   }
   currentServices.push(name);
@@ -165,13 +132,13 @@ function addService(name,price){
 }
 
 function renderBill(){
-  document.getElementById("bill").innerText = currentServices.join(", ");
-  document.getElementById("billTotal").innerText = currentTotal;
+  bill.innerHTML = currentServices.join(" + ");
+  billTotal.innerText = currentTotal;
 }
 
 function saveEntry(){
   if(!selectedChair || currentServices.length===0){
-    showPopup("Select chair & service");
+    alert("Select chair & service");
     return;
   }
   data.push({
@@ -183,24 +150,24 @@ function saveEntry(){
   localStorage.setItem("salonData",JSON.stringify(data));
   currentServices=[];
   currentTotal=0;
-  document.getElementById("bill").innerText="";
-  document.getElementById("billTotal").innerText="0";
+  bill.innerHTML="";
+  billTotal.innerText=0;
   render();
 }
 
 function render(){
-  let rec=document.getElementById("records");
-  rec.innerHTML="";
+  records.innerHTML="";
   let total=0;
   data.forEach(r=>{
-    rec.innerHTML+=`<tr>
-      <td>${r.chair}</td>
-      <td>${r.services.join("+")}</td>
-      <td>₹${r.amount}</td>
-    </tr>`;
+    records.innerHTML+=`
+      <tr>
+        <td>${r.chair}</td>
+        <td>${r.services.join(" + ")}</td>
+        <td>₹${r.amount}</td>
+      </tr>`;
     total+=r.amount;
   });
-  document.getElementById("todayTotal").innerText=total;
+  todayTotal.innerText=total;
 }
 
 function closeDay(){
@@ -213,7 +180,7 @@ function closeDay(){
 
 function downloadReport(){
   if(data.length===0){
-    showPopup("No data to download");
+    alert("No data to download");
     return;
   }
   let csv="Date,Chair,Services,Amount\n";
@@ -222,10 +189,10 @@ function downloadReport(){
     csv+=`${r.date},${r.chair},"${r.services.join("+")}",${r.amount}\n`;
     total+=r.amount;
   });
-  csv+=`Total,,,${total}\n`;
+  csv+=`,,,Total ${total}\n`;
 
-  let blob=new Blob([csv],{type:"text/csv"});
-  let a=document.createElement("a");
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
   a.download="salon-report.csv";
   a.click();
