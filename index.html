@@ -21,52 +21,41 @@ h2{text-align:center;margin-bottom:12px}
   box-shadow:0 6px 18px rgba(0,0,0,.08);
 }
 
-.row{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
 button{
-  padding:14px;
-  font-size:16px;
+  padding:16px;
+  font-size:17px;
   border-radius:12px;
   border:none;
   cursor:pointer;
 }
 
+/* ===== CHAIRS (FULL WIDTH) ===== */
 .chair{
+  width:100%;
+  margin-bottom:8px;
   background:#2563eb;
   color:#fff;
-  flex:1 1 45%;
 }
+.chair.active{background:#16a34a}
 
-.chair.active{
-  background:#16a34a;
+/* ===== SERVICES ===== */
+.services{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
 }
-
 .service{
   background:#e5e7eb;
-  flex:1 1 45%;
+}
+.service.active{
+  background:#22c55e;
+  color:#fff;
 }
 
-.save{
-  background:#16a34a;
-  color:#fff;
-  width:100%;
-}
-
-.reset{
-  background:#dc2626;
-  color:#fff;
-  width:100%;
-}
-
-.download{
-  background:#15803d;
-  color:#fff;
-  width:100%;
-}
+/* ===== ACTION BUTTONS ===== */
+.save{background:#16a34a;color:#fff;width:100%}
+.download{background:#15803d;color:#fff;width:100%}
+.reset{background:#dc2626;color:#fff;width:100%}
 
 .total{
   font-size:22px;
@@ -82,13 +71,12 @@ table{
 th,td{
   border-bottom:1px solid #ddd;
   padding:8px;
-  text-align:left;
 }
 
-/* ===== Custom Toast ===== */
+/* ===== TOAST ===== */
 #toast{
   position:fixed;
-  bottom:30px;
+  bottom:25px;
   left:50%;
   transform:translateX(-50%);
   background:#111827;
@@ -99,7 +87,7 @@ th,td{
   z-index:999;
 }
 
-/* ===== Custom Modal ===== */
+/* ===== MODAL ===== */
 #modal{
   position:fixed;
   inset:0;
@@ -107,7 +95,6 @@ th,td{
   display:none;
   align-items:center;
   justify-content:center;
-  z-index:999;
 }
 #modalBox{
   background:#fff;
@@ -117,10 +104,7 @@ th,td{
   max-width:320px;
   text-align:center;
 }
-#modalBox button{
-  width:100%;
-  margin-top:10px;
-}
+#modalBox button{width:100%;margin-top:10px}
 </style>
 </head>
 
@@ -130,22 +114,22 @@ th,td{
 
 <div class="card">
 <b>Select Chair</b>
-<div class="row" id="chairs"></div>
+<div id="chairs"></div>
 </div>
 
 <div class="card">
 <b>Select Services</b>
-<div class="row">
-<button class="service" onclick="addService('Haircut',150)">Haircut ₹150</button>
-<button class="service" onclick="addService('Beard',80)">Beard ₹80</button>
-<button class="service" onclick="addService('Facial',300)">Facial ₹300</button>
-<button class="service" onclick="addService('Hair Color',100)">Hair Color ₹100</button>
+<div class="services">
+  <button class="service" onclick="toggleService(this,'Haircut',150)">Haircut ₹150</button>
+  <button class="service" onclick="toggleService(this,'Beard',80)">Beard ₹80</button>
+  <button class="service" onclick="toggleService(this,'Facial',300)">Facial ₹300</button>
+  <button class="service" onclick="toggleService(this,'Hair Color',100)">Hair Color ₹100</button>
 </div>
 </div>
 
 <div class="card">
 <b>Current Bill</b>
-<p>Total: ₹ <span id="billTotal">0</span></p>
+<p>Total: ₹ <span id="bill">0</span></p>
 <button class="save" onclick="saveEntry()">Save Entry</button>
 </div>
 
@@ -154,10 +138,9 @@ Today Total: ₹ <span id="todayTotal">0</span>
 </div>
 
 <div class="card">
-<b>Entries</b>
 <table>
 <thead>
-<tr><th>Chair</th><th>Services</th><th>Amount</th></tr>
+<tr><th>Date</th><th>Chair</th><th>Services</th><th>Amount</th></tr>
 </thead>
 <tbody id="records"></tbody>
 </table>
@@ -171,10 +154,8 @@ Today Total: ₹ <span id="todayTotal">0</span>
 <button class="reset" onclick="openCloseDay()">Close Day</button>
 </div>
 
-<!-- Toast -->
 <div id="toast"></div>
 
-<!-- Modal -->
 <div id="modal">
   <div id="modalBox">
     <p>Close today? Data will reset.</p>
@@ -185,27 +166,26 @@ Today Total: ₹ <span id="todayTotal">0</span>
 
 <script>
 /* ===== EXPIRY CONTROL ===== */
-const PAID_TILL = "2026-01-31";
-if(new Date() > new Date(PAID_TILL)){
+const PAID_TILL="2026-01-31";
+if(new Date()>new Date(PAID_TILL)){
   document.body.innerHTML="<h2 style='text-align:center'>Service Disabled<br>Payment Pending</h2>";
 }
 
 /* ===== DATA ===== */
 let selectedChair=null;
 let services=[];
-let total=0;
+let bill=0;
 let data=JSON.parse(localStorage.getItem("salonData"))||[];
 
-/* ===== INIT CHAIRS ===== */
+/* ===== CHAIRS ===== */
 const chairBox=document.getElementById("chairs");
 for(let i=1;i<=5;i++){
-  let b=document.createElement("button");
+  const b=document.createElement("button");
   b.innerText="Chair "+i;
   b.className="chair";
   b.onclick=()=>selectChair(i,b);
   chairBox.appendChild(b);
 }
-
 function selectChair(n,btn){
   selectedChair=n;
   document.querySelectorAll(".chair").forEach(b=>b.classList.remove("active"));
@@ -213,58 +193,77 @@ function selectChair(n,btn){
   toast("Chair "+n+" selected");
 }
 
-/* ===== SERVICES ===== */
-function addService(name,price){
-  if(!selectedChair){ toast("Select chair first"); return; }
-  services.push(name);
-  total+=price;
-  document.getElementById("billTotal").innerText=total;
+/* ===== SERVICES TOGGLE ===== */
+function toggleService(btn,name,price){
+  if(!selectedChair){toast("Select chair first");return;}
+  const i=services.findIndex(s=>s.name===name);
+  if(i>-1){
+    services.splice(i,1);
+    bill-=price;
+    btn.classList.remove("active");
+  }else{
+    services.push({name,price});
+    bill+=price;
+    btn.classList.add("active");
+  }
+  document.getElementById("bill").innerText=bill;
 }
 
 /* ===== SAVE ===== */
 function saveEntry(){
-  if(!selectedChair || services.length===0){
+  if(!selectedChair||services.length===0){
     toast("Select chair & service");
     return;
   }
-  data.push({chair:selectedChair,services:[...services],amount:total});
+  data.push({
+    date:new Date().toLocaleDateString(),
+    chair:selectedChair,
+    services:services.map(s=>s.name).join("+"),
+    amount:bill
+  });
   localStorage.setItem("salonData",JSON.stringify(data));
-  services=[]; total=0;
-  document.getElementById("billTotal").innerText=0;
+  resetForm();
   render();
   toast("Entry saved");
 }
 
+/* ===== RESET FORM ===== */
+function resetForm(){
+  services=[];
+  bill=0;
+  document.getElementById("bill").innerText=0;
+  document.querySelectorAll(".service").forEach(b=>b.classList.remove("active"));
+}
+
 /* ===== RENDER ===== */
 function render(){
-  let tbody=document.getElementById("records");
-  tbody.innerHTML="";
-  let sum=0;
+  let rows="";
+  let total=0;
   data.forEach(r=>{
-    sum+=r.amount;
-    tbody.innerHTML+=`<tr><td>Chair ${r.chair}</td><td>${r.services.join("+")}</td><td>₹${r.amount}</td></tr>`;
+    rows+=`<tr><td>${r.date}</td><td>Chair ${r.chair}</td><td>${r.services}</td><td>₹${r.amount}</td></tr>`;
+    total+=r.amount;
   });
-  document.getElementById("todayTotal").innerText=sum;
+  document.getElementById("records").innerHTML=rows;
+  document.getElementById("todayTotal").innerText=total;
 }
 render();
 
 /* ===== DOWNLOAD ===== */
 function downloadReport(){
   if(data.length===0){toast("No data");return;}
-  let csv="Chair,Services,Amount\n";
+  let csv="Date,Chair,Services,Amount\n";
   data.forEach(r=>{
-    csv+=`Chair ${r.chair},"${r.services.join("+")}",${r.amount}\n`;
+    csv+=`${r.date},Chair ${r.chair},"${r.services}",${r.amount}\n`;
   });
-  let blob=new Blob([csv],{type:"text/csv"});
-  let a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
   a.download="salon-report.csv";
   a.click();
 }
 
 /* ===== CLOSE DAY ===== */
-function openCloseDay(){ document.getElementById("modal").style.display="flex"; }
-function closeModal(){ document.getElementById("modal").style.display="none"; }
+function openCloseDay(){document.getElementById("modal").style.display="flex"}
+function closeModal(){document.getElementById("modal").style.display="none"}
 function closeDay(){
   localStorage.removeItem("salonData");
   data=[];
@@ -275,7 +274,7 @@ function closeDay(){
 
 /* ===== TOAST ===== */
 function toast(msg){
-  let t=document.getElementById("toast");
+  const t=document.getElementById("toast");
   t.innerText=msg;
   t.style.display="block";
   setTimeout(()=>t.style.display="none",2000);
