@@ -10,81 +10,137 @@ body{
   font-family: system-ui, Segoe UI, Roboto;
   background:#f2f4f8;
   padding:14px;
+  margin:0;
 }
-h2{text-align:center;margin-bottom:12px}
 
+h2{
+  text-align:center;
+  margin-bottom:14px;
+}
+
+/* ===== CARD ===== */
 .card{
   background:#fff;
   padding:16px;
-  border-radius:14px;
+  border-radius:16px;
   margin-bottom:14px;
-  box-shadow:0 6px 18px rgba(0,0,0,.08);
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
 }
 
+/* ===== ROW ===== */
 .row{
   display:flex;
-  flex-wrap:wrap;
   gap:10px;
+  flex-wrap:wrap;
 }
 
+/* ===== BUTTON ===== */
 button{
   padding:16px;
-  font-size:17px;
-  border-radius:12px;
+  font-size:16px;
+  border-radius:14px;
   border:none;
   cursor:pointer;
 }
 
-/* Chairs */
+/* ===== CHAIRS ===== */
 .chair{
-  width:100%;
   background:#2563eb;
   color:#fff;
+  flex:1 1 100%;
 }
-.chair.active{background:#16a34a}
 
-/* Services */
+.chair.active{
+  background:#16a34a;
+}
+
+/* ===== SERVICES ===== */
 .service{
-  flex:1 1 45%;
   background:#e5e7eb;
+  flex:1 1 48%;
 }
-.service.active{
-  background:#22c55e;
+
+/* ===== ACTION BUTTONS ===== */
+.save{
+  background:#16a34a;
   color:#fff;
+  width:100%;
 }
 
-.save{background:#16a34a;color:#fff;width:100%}
-.download{background:#15803d;color:#fff;width:100%}
-.reset{background:#dc2626;color:#fff;width:100%}
+.reset{
+  background:#dc2626;
+  color:#fff;
+  width:100%;
+}
 
+.download{
+  background:#15803d;
+  color:#fff;
+  width:100%;
+}
+
+/* ===== TOTAL ===== */
 .total{
   font-size:22px;
   font-weight:bold;
   text-align:center;
 }
 
+/* ===== TABLE FIX ===== */
+.table-wrap{
+  overflow-x:auto;
+}
+
 table{
   width:100%;
+  min-width:650px;
   border-collapse:collapse;
   font-size:14px;
 }
+
 th,td{
+  padding:10px;
   border-bottom:1px solid #ddd;
-  padding:8px;
+  text-align:left;
+  word-break:break-word;
 }
 
-/* Toast */
+/* ===== TOAST ===== */
 #toast{
   position:fixed;
-  bottom:25px;
+  bottom:30px;
   left:50%;
   transform:translateX(-50%);
   background:#111827;
   color:#fff;
-  padding:14px 18px;
-  border-radius:12px;
+  padding:14px 20px;
+  border-radius:14px;
   display:none;
-  z-index:999;
+  z-index:1000;
+}
+
+/* ===== MODAL ===== */
+#modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+}
+
+#modalBox{
+  background:#fff;
+  padding:20px;
+  border-radius:16px;
+  width:85%;
+  max-width:320px;
+  text-align:center;
+}
+#modalBox button{
+  width:100%;
+  margin-top:10px;
 }
 </style>
 </head>
@@ -93,27 +149,24 @@ th,td{
 
 <h2>Salon Chair System</h2>
 
-<!-- CHAIRS -->
 <div class="card">
 <b>Select Chair</b>
-<div id="chairs"></div>
+<div class="row" id="chairs"></div>
 </div>
 
-<!-- SERVICES -->
 <div class="card">
 <b>Select Services</b>
 <div class="row">
-  <button class="service" onclick="toggleService(this,'Haircut',150)">Haircut ₹150</button>
-  <button class="service" onclick="toggleService(this,'Beard',80)">Beard ₹80</button>
-  <button class="service" onclick="toggleService(this,'Facial',300)">Facial ₹300</button>
-  <button class="service" onclick="toggleService(this,'Hair Color',100)">Hair Color ₹100</button>
+  <button class="service" onclick="addService('Haircut',150)">Haircut ₹150</button>
+  <button class="service" onclick="addService('Beard',80)">Beard ₹80</button>
+  <button class="service" onclick="addService('Facial',300)">Facial ₹300</button>
+  <button class="service" onclick="addService('Hair Color',100)">Hair Color ₹100</button>
 </div>
 </div>
 
-<!-- BILL -->
 <div class="card">
 <b>Current Bill</b>
-<p>Total: ₹ <span id="bill">0</span></p>
+<p>Total: ₹ <span id="billTotal">0</span></p>
 <button class="save" onclick="saveEntry()">Save Entry</button>
 </div>
 
@@ -121,11 +174,16 @@ th,td{
 Today Total: ₹ <span id="todayTotal">0</span>
 </div>
 
-<!-- RECORDS -->
-<div class="card">
+<div class="card table-wrap">
+<b>Entries</b>
 <table>
 <thead>
-<tr><th>Date</th><th>Chair</th><th>Services</th><th>Amount</th></tr>
+<tr>
+  <th>Date</th>
+  <th>Chair</th>
+  <th>Services</th>
+  <th>Amount</th>
+</tr>
 </thead>
 <tbody id="records"></tbody>
 </table>
@@ -136,132 +194,145 @@ Today Total: ₹ <span id="todayTotal">0</span>
 </div>
 
 <div class="card">
-<button class="reset" onclick="closeDay()">Close Day</button>
+<button class="reset" onclick="openCloseDay()">Close Day</button>
 </div>
 
+<!-- TOAST -->
 <div id="toast"></div>
+
+<!-- MODAL -->
+<div id="modal">
+  <div id="modalBox">
+    <p>Close today? Data will reset.</p>
+    <button class="reset" onclick="closeDay()">Yes, Close Day</button>
+    <button onclick="closeModal()">Cancel</button>
+  </div>
+</div>
 
 <script>
 /* ===== EXPIRY CONTROL ===== */
-const PAID_TILL = "2026-03-31";
+const PAID_TILL = "2026-01-31";
 if(new Date() > new Date(PAID_TILL)){
   document.body.innerHTML =
-    "<h2 style='text-align:center;margin-top:40px'>Service Disabled<br>Payment Pending</h2>";
+    "<h2 style='text-align:center'>Service Disabled<br>Payment Pending</h2>";
 }
 
 /* ===== DATA ===== */
-let selectedChair=null;
-let services=[];
-let bill=0;
-let data=JSON.parse(localStorage.getItem("salonData"))||[];
+let selectedChair = null;
+let services = [];
+let total = 0;
+let data = JSON.parse(localStorage.getItem("salonData")) || [];
 
-/* ===== INIT CHAIRS ===== */
-const chairBox=document.getElementById("chairs");
+/* ===== CHAIRS INIT ===== */
+const chairBox = document.getElementById("chairs");
 for(let i=1;i<=5;i++){
-  const b=document.createElement("button");
-  b.innerText="Chair "+i;
-  b.className="chair";
-  b.onclick=()=>selectChair(i,b);
+  let b = document.createElement("button");
+  b.innerText = "Chair " + i;
+  b.className = "chair";
+  b.onclick = () => selectChair(i, b);
   chairBox.appendChild(b);
 }
 
-function selectChair(n,btn){
-  selectedChair=n;
-  document.querySelectorAll(".chair").forEach(b=>b.classList.remove("active"));
+function selectChair(n, btn){
+  selectedChair = n;
+  document.querySelectorAll(".chair").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
-  toast("Chair "+n+" selected");
+  toast("Chair " + n + " selected");
 }
 
 /* ===== SERVICES ===== */
-function toggleService(btn,name,price){
-  if(!selectedChair){toast("Select chair first");return;}
-  if(btn.classList.contains("active")){
-    btn.classList.remove("active");
-    services=services.filter(s=>s.name!==name);
-    bill-=price;
-  }else{
-    btn.classList.add("active");
-    services.push({name,price});
-    bill+=price;
+function addService(name, price){
+  if(!selectedChair){
+    toast("Select chair first");
+    return;
   }
-  document.getElementById("bill").innerText=bill;
+  services.push(name);
+  total += price;
+  document.getElementById("billTotal").innerText = total;
 }
 
 /* ===== SAVE ENTRY ===== */
 function saveEntry(){
-  if(!selectedChair || services.length===0){
+  if(!selectedChair || services.length === 0){
     toast("Select chair & service");
     return;
   }
   data.push({
-    date:new Date().toLocaleDateString(),
-    chair:selectedChair,
-    services:services.map(s=>s.name).join("+"),
-    amount:bill
+    date: new Date().toLocaleDateString(),
+    chair: selectedChair,
+    services: [...services],
+    amount: total
   });
-  localStorage.setItem("salonData",JSON.stringify(data));
-  resetForm();
+
+  localStorage.setItem("salonData", JSON.stringify(data));
+  services = [];
+  total = 0;
+  document.getElementById("billTotal").innerText = 0;
   render();
   toast("Entry saved");
 }
 
 /* ===== RENDER ===== */
 function render(){
-  let tbody=document.getElementById("records");
-  tbody.innerHTML="";
-  let total=0;
-  data.forEach(r=>{
-    tbody.innerHTML+=
-      `<tr>
+  let tbody = document.getElementById("records");
+  tbody.innerHTML = "";
+  let sum = 0;
+
+  data.forEach(r => {
+    sum += r.amount;
+    tbody.innerHTML += `
+      <tr>
         <td>${r.date}</td>
         <td>Chair ${r.chair}</td>
-        <td>${r.services}</td>
+        <td>${r.services.join(" + ")}</td>
         <td>₹${r.amount}</td>
       </tr>`;
-    total+=r.amount;
   });
-  document.getElementById("todayTotal").innerText=total;
+
+  document.getElementById("todayTotal").innerText = sum;
 }
 render();
 
-/* ===== RESET FORM ===== */
-function resetForm(){
-  services=[];
-  bill=0;
-  document.getElementById("bill").innerText=0;
-  document.querySelectorAll(".service").forEach(b=>b.classList.remove("active"));
+/* ===== DOWNLOAD CSV ===== */
+function downloadReport(){
+  if(data.length === 0){
+    toast("No data to download");
+    return;
+  }
+  let csv = "Date,Chair,Services,Amount\n";
+  data.forEach(r => {
+    csv += `${r.date},Chair ${r.chair},"${r.services.join(" + ")}",${r.amount}\n`;
+  });
+  let blob = new Blob([csv], {type:"text/csv"});
+  let a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "salon-report.csv";
+  a.click();
 }
 
-/* ===== CLOSE DAY (NO PIN) ===== */
+/* ===== CLOSE DAY ===== */
+function openCloseDay(){
+  document.getElementById("modal").style.display="flex";
+}
+function closeModal(){
+  document.getElementById("modal").style.display="none";
+}
 function closeDay(){
   localStorage.removeItem("salonData");
-  data=[];
+  data = [];
   render();
+  closeModal();
   toast("Day closed");
-}
-
-/* ===== DOWNLOAD ===== */
-function downloadReport(){
-  if(data.length===0){toast("No data");return;}
-  let csv="Date,Chair,Services,Amount\n";
-  data.forEach(r=>{
-    csv+=`${r.date},Chair ${r.chair},"${r.services}",${r.amount}\n`;
-  });
-  const blob=new Blob([csv],{type:"text/csv"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="salon-report.csv";
-  a.click();
 }
 
 /* ===== TOAST ===== */
 function toast(msg){
-  const t=document.getElementById("toast");
-  t.innerText=msg;
-  t.style.display="block";
-  setTimeout(()=>t.style.display="none",2000);
+  let t = document.getElementById("toast");
+  t.innerText = msg;
+  t.style.display = "block";
+  setTimeout(() => t.style.display = "none", 2000);
 }
 </script>
 
 </body>
-</html>
+</html>  
