@@ -21,12 +21,10 @@ h2{text-align:center;margin-bottom:12px}
   box-shadow:0 6px 18px rgba(0,0,0,.08);
 }
 
-input{
-  width:100%;
-  padding:14px;
-  border-radius:10px;
-  border:1px solid #ccc;
-  font-size:16px;
+.row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
 }
 
 button{
@@ -37,13 +35,7 @@ button{
   cursor:pointer;
 }
 
-.row{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-}
-
-/* Chairs full width */
+/* Chairs */
 .chair{
   width:100%;
   background:#2563eb;
@@ -51,7 +43,7 @@ button{
 }
 .chair.active{background:#16a34a}
 
-/* Services grid */
+/* Services */
 .service{
   flex:1 1 45%;
   background:#e5e7eb;
@@ -99,13 +91,7 @@ th,td{
 
 <body>
 
-<h2 id="title">Salon Chair System</h2>
-
-<!-- SALON NAME -->
-<div class="card">
-  <input id="salonName" placeholder="Enter Salon Name">
-  <button onclick="saveSalonName()">Save Salon Name</button>
-</div>
+<h2>Salon Chair System</h2>
 
 <!-- CHAIRS -->
 <div class="card">
@@ -139,7 +125,7 @@ Today Total: ₹ <span id="todayTotal">0</span>
 <div class="card">
 <table>
 <thead>
-<tr><th>Chair</th><th>Services</th><th>Amount</th></tr>
+<tr><th>Date</th><th>Chair</th><th>Services</th><th>Amount</th></tr>
 </thead>
 <tbody id="records"></tbody>
 </table>
@@ -156,34 +142,20 @@ Today Total: ₹ <span id="todayTotal">0</span>
 <div id="toast"></div>
 
 <script>
-/* ================= PAYMENT CONTROL ================= */
-const PAID_TILL = "2026-03-31";   // <-- change date here
+/* ===== EXPIRY CONTROL ===== */
+const PAID_TILL = "2026-03-31";
 if(new Date() > new Date(PAID_TILL)){
-  document.body.innerHTML="<h2 style='text-align:center;margin-top:40px'>Service Disabled<br>Payment Pending</h2>";
+  document.body.innerHTML =
+    "<h2 style='text-align:center;margin-top:40px'>Service Disabled<br>Payment Pending</h2>";
 }
 
-/* ================= DATA ================= */
-const OWNER_PIN = "1523"; // change PIN
+/* ===== DATA ===== */
 let selectedChair=null;
 let services=[];
 let bill=0;
 let data=JSON.parse(localStorage.getItem("salonData"))||[];
 
-/* ================= SALON NAME ================= */
-function saveSalonName(){
-  const n=document.getElementById("salonName").value.trim();
-  if(!n){toast("Enter salon name");return;}
-  localStorage.setItem("salonName",n);
-  renderSalonName();
-  toast("Salon name saved");
-}
-function renderSalonName(){
-  const n=localStorage.getItem("salonName");
-  if(n) document.getElementById("title").innerText=n;
-}
-renderSalonName();
-
-/* ================= CHAIRS ================= */
+/* ===== INIT CHAIRS ===== */
 const chairBox=document.getElementById("chairs");
 for(let i=1;i<=5;i++){
   const b=document.createElement("button");
@@ -192,6 +164,7 @@ for(let i=1;i<=5;i++){
   b.onclick=()=>selectChair(i,b);
   chairBox.appendChild(b);
 }
+
 function selectChair(n,btn){
   selectedChair=n;
   document.querySelectorAll(".chair").forEach(b=>b.classList.remove("active"));
@@ -199,7 +172,7 @@ function selectChair(n,btn){
   toast("Chair "+n+" selected");
 }
 
-/* ================= SERVICES ================= */
+/* ===== SERVICES ===== */
 function toggleService(btn,name,price){
   if(!selectedChair){toast("Select chair first");return;}
   if(btn.classList.contains("active")){
@@ -214,7 +187,7 @@ function toggleService(btn,name,price){
   document.getElementById("bill").innerText=bill;
 }
 
-/* ================= SAVE ENTRY ================= */
+/* ===== SAVE ENTRY ===== */
 function saveEntry(){
   if(!selectedChair || services.length===0){
     toast("Select chair & service");
@@ -232,20 +205,26 @@ function saveEntry(){
   toast("Entry saved");
 }
 
-/* ================= RENDER ================= */
+/* ===== RENDER ===== */
 function render(){
   let tbody=document.getElementById("records");
   tbody.innerHTML="";
   let total=0;
   data.forEach(r=>{
-    tbody.innerHTML+=`<tr><td>Chair ${r.chair}</td><td>${r.services}</td><td>₹${r.amount}</td></tr>`;
+    tbody.innerHTML+=
+      `<tr>
+        <td>${r.date}</td>
+        <td>Chair ${r.chair}</td>
+        <td>${r.services}</td>
+        <td>₹${r.amount}</td>
+      </tr>`;
     total+=r.amount;
   });
   document.getElementById("todayTotal").innerText=total;
 }
 render();
 
-/* ================= RESET FORM ================= */
+/* ===== RESET FORM ===== */
 function resetForm(){
   services=[];
   bill=0;
@@ -253,20 +232,15 @@ function resetForm(){
   document.querySelectorAll(".service").forEach(b=>b.classList.remove("active"));
 }
 
-/* ================= CLOSE DAY (PIN) ================= */
+/* ===== CLOSE DAY (NO PIN) ===== */
 function closeDay(){
-  const pin=prompt("Enter PIN");
-  if(pin!==OWNER_PIN){
-    toast("Wrong PIN");
-    return;
-  }
   localStorage.removeItem("salonData");
   data=[];
   render();
   toast("Day closed");
 }
 
-/* ================= DOWNLOAD ================= */
+/* ===== DOWNLOAD ===== */
 function downloadReport(){
   if(data.length===0){toast("No data");return;}
   let csv="Date,Chair,Services,Amount\n";
@@ -280,7 +254,7 @@ function downloadReport(){
   a.click();
 }
 
-/* ================= TOAST ================= */
+/* ===== TOAST ===== */
 function toast(msg){
   const t=document.getElementById("toast");
   t.innerText=msg;
